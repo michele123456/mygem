@@ -1,1 +1,2 @@
-"# mygem" 
+This is my ThreadPool gem
+
