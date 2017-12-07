@@ -12,7 +12,7 @@ class HgThread
             @thread = Thread.new {
                 puts 'thread initialized'
                 @semaphore.signal
-                
+
                 puts 'wait for job'
                 @semaphore.wait
                 hg_task.my_block.call if hg_task
@@ -21,8 +21,8 @@ class HgThread
         puts 'waitin thread initialization ...'
         @semaphore.wait
         puts 'thread initialized'
-    end
-
+    end 
+ 
     def execute(task)
         @hg_task = task
         puts 'execute task'
