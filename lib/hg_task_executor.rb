@@ -13,7 +13,7 @@ class HgTaskExecutor
     hg_task = HgTask.new(name, &block)
     @tasks_queue << hg_task
     puts 'queue items are ' << @tasks_queue.length.to_s
-    run_task
+    #run_task
     return hg_task
   end
 
@@ -32,11 +32,27 @@ class HgTaskExecutor
   def initialize
     puts 'initialize singleton'
     @tasks_queue = Queue.new
+    start_executor_thread
   end
 
-  def run_task
+  def start_executor_thread
+    semaphore = HgSemaphore.new
+    Thread.new {
+      puts 'start executor thread!!!'
+      semaphore.signal
+      while true do
+        hg_task = @tasks_queue.pop
+        task_running = run_task(hg_task)
+        @tasks_queue << hg_task if !task_running
+      end
+    }
+    semaphore.wait
+  end
+    
+  def run_task(hg_task)
     puts 'running next task'
     free_thread = HgThreadPool.instance.free_thread
-    free_thread.execute(@tasks_queue.pop)
+    free_thread.execute(hg_task) if free_thread
+    !free_thread.nil?
   end
 end
