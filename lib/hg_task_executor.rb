@@ -36,6 +36,7 @@ class HgTaskExecutor
 
   def run_task
     puts 'running next task'
-
+    free_thread = HgThreadPool.instance.free_thread
+    free_thread.execute(@tasks_queue.pop)
   end
 end
