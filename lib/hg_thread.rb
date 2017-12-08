@@ -16,7 +16,7 @@ class HgThread
                 puts 'wait for job'
                 @semaphore.wait
                 @hg_task.my_block.call if @hg_task
-                cleanup_block.call(hg_task)
+                cleanup_block.call(self)
                 @hg_task.semaphore.signal
             end
             puts 'exiting... hg_thread'

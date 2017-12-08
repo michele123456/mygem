@@ -56,14 +56,7 @@ class HgTaskExecutor
     puts 'running next task'
     free_thread = HgThreadPool.instance.free_thread
     puts 'executing task ' << (hg_task.name.nil? ? '""' : hg_task.name)
-    if free_thread
-      puts 'executed task calling'
-      free_thread.execute_task(hg_task)
-      puts 'executed task called'
-    else
-      puts 'no free task'
-    end
-    puts 'bye'
+    free_thread.execute_task(hg_task) if free_thread
     !free_thread.nil?
   end
 end
