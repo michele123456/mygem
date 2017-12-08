@@ -8,24 +8,27 @@ class HgThread
         @hg_task = nil
         @semaphore = HgSemaphore.new
         @mutex = Mutex.new
+        puts 'HgThread initialize..'
         @thread = Thread.new {
-            puts 'thread initialized'
+            puts 'New hg_thread initialized'
             @semaphore.signal
             while true do
                 puts 'wait for job'
                 @semaphore.wait
-                hg_task.my_block.call if hg_task
+                @hg_task.my_block.call if @hg_task
                 cleanup_block.call(hg_task)
+                @hg_task.semaphore.signal
             end
+            puts 'exiting... hg_thread'
         }
-        puts 'waiting thread initialization ...'
+        puts 'waiting for hg_thread initialization ...'
         @semaphore.wait
-        puts 'thread initialized'
+        puts 'hg_thread initialized'
     end
 
-    def execute(task)
+    def execute_task(task)
+        puts 'execute task on hg_thread'
         @hg_task = task
-        puts 'execute task'
         @semaphore.signal
     end
 
