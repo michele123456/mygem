@@ -43,7 +43,10 @@ class HgTaskExecutor
               hg_task = @tasks_queue.pop
               print 'new task arrived!!!' << "\n"
               task_running = run_task(hg_task)
-              @tasks_queue << hg_task if !task_running
+              if !task_running
+                sleep 1 
+                @tasks_queue << hg_task 
+              end
             
           end
           print 'exiting start_executor_thread' << "\n"
