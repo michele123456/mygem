@@ -8,32 +8,41 @@ class HgThread
         @hg_task = nil
         @semaphore = HgSemaphore.new
         @mutex = Mutex.new
-        puts 'HgThread initialize..'
+        print 'HgThread initialize..'
         @thread = Thread.new {
             begin
-                puts 'New hg_thread initialized'
+                print 'New hg_thread initialized'<<"\n"
                 @semaphore.signal
            
                 while true do
-                    puts 'wait for job'
-                    @semaphore.wait
-                    @hg_task.my_block.call if @hg_task
-                    cleanup_block.call(self)
-                    @hg_task.semaphore.signal
+                    begin
+                        print 'wait for job'<<"\n"
+                        @semaphore.wait
+                        next if @hg_task.nil?
+                        print 'executing task ' << @hg_task.name << "\n"
+                        @hg_task.the_block.call
+                        @hg_task.semaphore.signal
+                        cleanup_block.call(self)
+                        
+                    rescue
+                        sleep 10
+                        print 'ERRRORRRR5 ' << $!.message<<"\n"
+                        print 'ERRRORRRR5 ' << $!.backtrace<<"\n"
+                    end
                 end
             rescue
-                puts 'ERRRORRRR5 ' << $!.message
-                puts 'ERRRORRRR5 ' << $!.backtrace
-              end
-            puts 'exiting... hg_thread'
+                print 'ERRRORRRR5 ' << $!.message<<"\n"
+                print 'ERRRORRRR5 ' << $!.backtrace<<"\n"
+            end
+            print 'exiting... hg_thread'<<"\n"
         }
-        puts 'waiting for hg_thread initialization ...'
+        print 'waiting for hg_thread initialization ...'<<"\n"
         @semaphore.wait
-        puts 'hg_thread initialized'
+        print 'hg_thread initialized'<<"\n"
     end
 
     def execute_task(task)
-        puts 'execute task on hg_thread'
+        print 'execute task on hg_thread' << task.name << "\n"
         @hg_task = task
         @semaphore.signal
     end

@@ -14,20 +14,13 @@ class HgTask
     @my_block = block
   end
   
-  def my_block
+  def the_block
     @my_block
   end
 
-  def hg_task_block(&block)
-    @hg_task_block = block
-  end
-  
-  def hg_task_block
-    @hg_task_block
-  end
-
+ 
   def wait_for_task_executor
-    puts 'wait_for_task_executor'
+    print 'wait_for_task_executor'<<"\n"
     @hg_task_executor_semaphore.wait
   end
 

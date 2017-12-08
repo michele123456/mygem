@@ -3,37 +3,64 @@ class HgThreadPool
 
     def self.instance
         @@instance = HgThreadPool.new if @@instance.nil?
-        puts 'return HgThreadPool instance'
+        print 'return HgThreadPool instance' <<"\n"
         @@instance
     end
 
     def free_thread
-        puts 'free thread entry'
-        if @available_threads.empty? then
-           puts 'no available thread, spawning one'
-           @available_threads << HgThread.new {|hg_thread| 
-            puts 'task finished'
-            @available_threads << hg_thread
-            @running_threads -= 1
-           } if total_thread_count < 1  
+        begin
+            hg_free_thread = nil
+            @mutex.synchronize{
+                
+                print 'free thread entry' <<"\n"
+                if @available_threads.empty? then
+                    print 'no available thread, spawning one' <<"\n"
+                    
+                    @available_threads << HgThread.new {|hg_thread| 
+                        begin
+                            print 'task finished '<< @mutex.inspect << "\n"
+                            
+                            @mutex.synchronize{
+                                print 'inside hg_thread cleanup synch block'
+                                @available_threads << hg_thread
+                                @running_threads.delete(hg_thread)
+                            }
+                            
+                        rescue
+                            print 'ERRRORRRR7 ' << $!.message << "\n"
+                            print 'ERRRORRRR7 ' << $!.backtrace<< "\n"
+                        end
+                    } if total_thread_count < 1  
+                end
+            
+                hg_free_thread = @available_threads.pop
+                @running_threads << hg_free_thread if hg_free_thread
+                
+            }
+            
+            print 'returning hg_thread '  <<  (hg_free_thread.nil? ? 'nil' : 'not nil')<< "\n"
+            return hg_free_thread
+        rescue
+            print 'ERRRORRRR8 ' << $!.message<< "\n"
+            print 'ERRRORRRR8 ' << $!.backtrace<< "\n"
         end
         
-        hg_thread = @available_threads.pop
-        @running_threads += 1
-        puts 'returning hg_thread '  <<  (hg_thread.nil? ? 'nil' : 'not nil')
-        hg_thread
     end
 
 private
 
     def initialize
-        puts 'initialize HgThreadPool'
-        @available_threads = Queue.new
-        @running_threads = 0
+        print 'initialize HgThreadPool'<< "\n"
+        @available_threads = Array.new
+        @running_threads = Array.new
+        @mutex = Mutex.new
+        print 'HgThreadPool initialized mutex '<< @mutex.inspect<< "\n"
     end
 
     def total_thread_count
-	    return @available_threads.length + @running_threads
+        count_threads = @available_threads.length + @running_threads.length 
+        print 'TOTAL_THREAD_count are ' << count_threads.to_s<< "\n"
+	    count_threads 
     end
 
 end

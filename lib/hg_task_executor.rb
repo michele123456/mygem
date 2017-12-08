@@ -10,69 +10,60 @@ class HgTaskExecutor
   #Add the block to the queue and returns that associated task
   def add_task(name=nil,&block)
     begin
-      puts 'adding new task to executor queue'
+      print 'adding new task to executor queue'<<"\n"
       hg_task = HgTask.new(name, &block)
       @tasks_queue << hg_task
-      puts 'queue items are ' << @tasks_queue.length.to_s
+      print  'queue items are ' << @tasks_queue.length.to_s<<"\n"
     rescue
-      puts 'ERRRORRRR2 ' << $!.message
-      puts 'ERRRORRRR2 ' << $!.backtrace
+      print 'ERRRORRRR2 ' << $!.message<<"\n"
+      print 'ERRRORRRR2 ' << $!.backtrace<<"\n"
     end
     
     return hg_task
   end
 
-  def dump_queue
-    until @tasks_queue.empty?
-      hg_task = @tasks_queue.pop(true) 
-      if hg_task
-        puts "taks is #{hg_task.name}"
-        hg_task.my_block.call if hg_task.my_block
-      end
-    end
-  end
-
+  
   private
 
   def initialize
-    puts 'initialize singleton'
+    print 'initialize singleton'<<"\n"
     @tasks_queue = Queue.new
     @semaphore = HgSemaphore.new
+    @executor_thread = nil
     start_executor_thread
   end
 
   def start_executor_thread
-    Thread.new {
-        begin
-          puts 'start executor thread!!!'
+    @executor_thread = Thread.new {
+      begin
+          print 'start executor thread!!!' << "\n"
           @semaphore.signal
           while true do
-            
-              puts 'waiting for new task'
+              print 'waiting for new task' << "\n"
               hg_task = @tasks_queue.pop
-              puts 'new task arrived!!!'
+              print 'new task arrived!!!' << "\n"
               task_running = run_task(hg_task)
               @tasks_queue << hg_task if !task_running
             
           end
-          puts 'exiting start_executor_thread'
+          print 'exiting start_executor_thread' << "\n"
       rescue
-        puts 'ERRRORRRR3 ' << $!.message
-        puts 'ERRRORRRR3 ' << $!.backtrace
+        print 'ERRRORRRR31 ' << $!.message << "\n"
+        print 'ERRRORRRR31 ' << $!.backtrace << "\n"
       end
     }
     @semaphore.wait
   end
     
   def run_task(hg_task)
-    puts 'running next task'
+    print 'running next task' << hg_task.inspect << "\n"
     begin
       free_thread = HgThreadPool.instance.free_thread
-      puts 'executing task ' << (hg_task.name.nil? ? '""' : hg_task.name)
+      print 'run_task  ' << (hg_task.name.nil? ? '""' : hg_task.name) << "\n"
       free_thread.execute_task(hg_task) if free_thread
     rescue
-      puts 'ERRRORRRR1 ' << $!.message
-      puts 'ERRRORRRR1 ' << $!.backtrace
+      print 'ERRRORRRR1 ' << $!.message<<"\n"
+      print 'ERRRORRRR1 ' << $!.backtrace<<"\n"
     end
     !free_thread.nil?
 
