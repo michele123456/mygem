@@ -9,10 +9,15 @@ class HgTaskExecutor
 
   #Add the block to the queue and returns that associated task
   def add_task(name=nil,&block)
-    puts 'adding new task to executor queue'
-    hg_task = HgTask.new(name, &block)
-    @tasks_queue << hg_task
-    puts 'queue items are ' << @tasks_queue.length.to_s
+    begin
+      puts 'adding new task to executor queue'
+      hg_task = HgTask.new(name, &block)
+      @tasks_queue << hg_task
+      puts 'queue items are ' << @tasks_queue.length.to_s
+    rescue
+      puts 'ERRRORRRR2 ' << $!.message
+      puts 'ERRRORRRR2 ' << $!.backtrace
+    end
     
     return hg_task
   end
@@ -38,25 +43,38 @@ class HgTaskExecutor
 
   def start_executor_thread
     Thread.new {
-      puts 'start executor thread!!!'
-      @semaphore.signal
-      while true do
-        puts 'waiting for new task'
-        hg_task = @tasks_queue.pop
-        puts 'new task arrived!!!'
-        task_running = run_task(hg_task)
-        @tasks_queue << hg_task if !task_running
+        begin
+          puts 'start executor thread!!!'
+          @semaphore.signal
+          while true do
+            
+              puts 'waiting for new task'
+              hg_task = @tasks_queue.pop
+              puts 'new task arrived!!!'
+              task_running = run_task(hg_task)
+              @tasks_queue << hg_task if !task_running
+            
+          end
+          puts 'exiting start_executor_thread'
+      rescue
+        puts 'ERRRORRRR3 ' << $!.message
+        puts 'ERRRORRRR3 ' << $!.backtrace
       end
-      puts 'exiting start_executor_thread'
     }
     @semaphore.wait
   end
     
   def run_task(hg_task)
     puts 'running next task'
-    free_thread = HgThreadPool.instance.free_thread
-    puts 'executing task ' << (hg_task.name.nil? ? '""' : hg_task.name)
-    free_thread.execute_task(hg_task) if free_thread
+    begin
+      free_thread = HgThreadPool.instance.free_thread
+      puts 'executing task ' << (hg_task.name.nil? ? '""' : hg_task.name)
+      free_thread.execute_task(hg_task) if free_thread
+    rescue
+      puts 'ERRRORRRR1 ' << $!.message
+      puts 'ERRRORRRR1 ' << $!.backtrace
+    end
     !free_thread.nil?
+
   end
 end

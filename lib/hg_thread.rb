@@ -10,15 +10,21 @@ class HgThread
         @mutex = Mutex.new
         puts 'HgThread initialize..'
         @thread = Thread.new {
-            puts 'New hg_thread initialized'
-            @semaphore.signal
-            while true do
-                puts 'wait for job'
-                @semaphore.wait
-                @hg_task.my_block.call if @hg_task
-                cleanup_block.call(self)
-                @hg_task.semaphore.signal
-            end
+            begin
+                puts 'New hg_thread initialized'
+                @semaphore.signal
+           
+                while true do
+                    puts 'wait for job'
+                    @semaphore.wait
+                    @hg_task.my_block.call if @hg_task
+                    cleanup_block.call(self)
+                    @hg_task.semaphore.signal
+                end
+            rescue
+                puts 'ERRRORRRR5 ' << $!.message
+                puts 'ERRRORRRR5 ' << $!.backtrace
+              end
             puts 'exiting... hg_thread'
         }
         puts 'waiting for hg_thread initialization ...'

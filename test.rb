@@ -14,6 +14,9 @@ task.wait_for_finish
 task = task_executor.add_task('pippo2') {puts 'pippo2'}
 #sleep 2
 task.wait_for_finish
-task = task_executor.add_task('pippo3') {puts 'pippo3'}
+(0..10).each do |i|
+    task = task_executor.add_task('PIPPO'<<i.to_s) {puts 'PIPPO'<<i.to_s}
+end
+
 task.wait_for_finish
 #task_executor.dump_queue
