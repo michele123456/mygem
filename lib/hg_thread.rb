@@ -12,6 +12,7 @@ class HgThread
         @thread = Thread.new {
             begin
                 print 'New hg_thread initialized'<<"\n"
+                sleep 0.1
                 @semaphore.signal
            
                 while true do
@@ -36,7 +37,7 @@ class HgThread
             end
             print 'exiting... hg_thread'<<"\n"
         }
-        print 'waiting for hg_thread initialization ...'<<"\n"
+        #print 'waiting for hg_thread initialization ...'<<"\n"
         @semaphore.wait
         print 'hg_thread initialized'<<"\n"
     end

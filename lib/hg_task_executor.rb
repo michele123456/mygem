@@ -37,6 +37,7 @@ class HgTaskExecutor
     @executor_thread = Thread.new {
       begin
           print 'start executor thread!!!' << "\n"
+          sleep 0.1
           @semaphore.signal
           while true do
               print 'waiting for new task' << "\n"
@@ -44,7 +45,7 @@ class HgTaskExecutor
               print 'new task arrived!!!' << "\n"
               task_running = run_task(hg_task)
               if !task_running
-                sleep 1 
+                sleep 0.1 
                 @tasks_queue << hg_task 
               end
             
@@ -60,15 +61,9 @@ class HgTaskExecutor
     
   def run_task(hg_task)
     print 'running next task' << hg_task.inspect << "\n"
-    begin
-      free_thread = HgThreadPool.instance.free_thread
-      print 'run_task  ' << (hg_task.name.nil? ? '""' : hg_task.name) << "\n"
-      free_thread.execute_task(hg_task) if free_thread
-    rescue
-      print 'ERRRORRRR1 ' << $!.message<<"\n"
-      print 'ERRRORRRR1 ' << $!.backtrace<<"\n"
-    end
+    free_thread = HgThreadPool.instance.free_thread
+    print 'run_task  ' << (hg_task.name.nil? ? '""' : hg_task.name) << "\n"
+    free_thread.execute_task(hg_task) if free_thread
     !free_thread.nil?
-
   end
 end
