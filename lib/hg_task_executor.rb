@@ -1,3 +1,7 @@
+require 'hg_semaphore'
+require 'hg_task'
+require 'hg_thread_pool'
+require 'hg_thread'
 
 class HgTaskExecutor
   @@instance = nil

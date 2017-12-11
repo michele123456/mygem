@@ -1,8 +1,9 @@
-require './lib/hg_task_executor'
-require './lib/hg_task'
-require './lib/hg_semaphore'
-require './lib/hg_thread'
-require './lib/hg_thread_pool'
+#require './lib/hg_task_executor'
+#require './lib/hg_task'
+#require './lib/hg_semaphore'
+#require './lib/hg_thread'
+#require './lib/hg_thread_pool'
+require 'hg_task_executor'
 
 begin
 task_executor = HgTaskExecutor.instance
