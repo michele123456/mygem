@@ -17,19 +17,14 @@ class HgThreadPool
                     print 'no available thread, spawning one' <<"\n"
                     
                     @available_threads << HgThread.new {|hg_thread| 
-                        begin
-                            print 'task finished '<< @mutex.inspect << "\n"
+                        print 'task finished '<< @mutex.inspect << "\n"
+                        
+                        @mutex.synchronize{
+                            print 'inside hg_thread cleanup synch block'
+                            @available_threads << hg_thread
+                            @running_threads.delete(hg_thread)
+                        }
                             
-                            @mutex.synchronize{
-                                print 'inside hg_thread cleanup synch block'
-                                @available_threads << hg_thread
-                                @running_threads.delete(hg_thread)
-                            }
-                            
-                        rescue
-                            print 'ERRRORRRR7 ' << $!.message << "\n"
-                            print 'ERRRORRRR7 ' << $!.backtrace<< "\n"
-                        end
                     } if total_thread_count < 1  
                 end
             
@@ -41,8 +36,8 @@ class HgThreadPool
             print 'returning hg_thread '  <<  (hg_free_thread.nil? ? 'nil' : 'not nil')<< "\n"
             return hg_free_thread
         rescue
-            print 'ERRRORRRR8 ' << $!.message<< "\n"
-            print 'ERRRORRRR8 ' << $!.backtrace<< "\n"
+            print 'free_thread error ' << $!.message<< "\n"
+            raise
         end
         
     end

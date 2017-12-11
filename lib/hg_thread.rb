@@ -14,9 +14,8 @@ class HgThread
                 print 'New hg_thread initialized'<<"\n"
                 sleep 0.1
                 @semaphore.signal
-           
+          
                 while true do
-                    begin
                         print 'wait for job'<<"\n"
                         @semaphore.wait
                         next if @hg_task.nil?
@@ -24,16 +23,10 @@ class HgThread
                         @hg_task.the_block.call
                         @hg_task.semaphore.signal
                         cleanup_block.call(self)
-                        
-                    rescue
-                        sleep 10
-                        print 'ERRRORRRR5 ' << $!.message<<"\n"
-                        print 'ERRRORRRR5 ' << $!.backtrace<<"\n"
-                    end
                 end
             rescue
                 print 'ERRRORRRR5 ' << $!.message<<"\n"
-                print 'ERRRORRRR5 ' << $!.backtrace<<"\n"
+                raise
             end
             print 'exiting... hg_thread'<<"\n"
         }

@@ -15,8 +15,8 @@ class HgTaskExecutor
       @tasks_queue << hg_task
       print  'queue items are ' << @tasks_queue.length.to_s<<"\n"
     rescue
-      print 'ERRRORRRR2 ' << $!.message<<"\n"
-      print 'ERRRORRRR2 ' << $!.backtrace<<"\n"
+      print 'add_task error ' << $!.message<<"\n"
+      raise
     end
     
     return hg_task
@@ -52,8 +52,8 @@ class HgTaskExecutor
           end
           print 'exiting start_executor_thread' << "\n"
       rescue
-        print 'ERRRORRRR31 ' << $!.message << "\n"
-        print 'ERRRORRRR31 ' << $!.backtrace << "\n"
+        print 'start_executor_thread error ' << $!.message << "\n"
+        raise
       end
     }
     @semaphore.wait
